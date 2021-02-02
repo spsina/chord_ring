@@ -57,30 +57,20 @@ class Node:
         :param key: key to ask the location of, from the given _chord
         :return: a _chord AI(accessInfo) where the given key is saved
         """
-        async with websockets.connect(_chord.get_uri()) as ws:
-
-            # we intend to call the locate function on the given _chord
-            _data = {
-                'func_name': 'locate',
-                'kwargs': {'key': key},
-                'args': ()
-            }
-
-            await ws.send(json.dumps(_data))
-            _result = await ws.recv()
-
-            if _result is not None:
-                result = jsonpickle.decode(_result)
-            else:
-                result = None
-
-            return result
+        return await _chord.execute("locate", key=key)
 
     async def locate(self, key):
+        
         """
         Find what node the given key is located in
         """
-        
+
+        # normalize key
+        key = key % self._MAX
+
+        if key == 0:
+            key = 1
+
         # check if key is on the current node
         if key in await self.get_range():
             return self.ai
@@ -130,28 +120,17 @@ class Node:
     
     async def if_not_my_range_nxt_range(self, q):
         
+        # normalize q
+        q = q % self._MAX
+
+        if q == 0:
+            q = 1
+
         if q in await self.get_range():
-            key_q = self.ai
+            return self.ai
         else:
-            async with websockets.connect(self.nxt.get_uri()) as ws:
-                _data = {
-                    'func_name': 'if_not_my_range_nxt_range',
-                    'args': (),
-                    'kwargs': {'q': q}
-                }
-
-                await ws.send(json.dumps(_data))
-                _result = await ws.recv()
-
-                if _result is not None:
-                    result = jsonpickle.decode(_result)
-                else:
-                    result = None
-
-                key_q = result
-
-        return key_q
-
+            return await self.nxt.execute('if_not_my_range_nxt_range', q=q)
+        
     async def update_finger_table(self):
         """
         FT:
@@ -168,10 +147,7 @@ class Node:
         self.finger_table = []
 
         for i in range(5):
-            q = (self.ai.id + 2 ** i) % self._MAX
-
-            if q == 0:
-                q = 1
+            q = self.ai.id + 2 ** i
 
             key_q = await self.if_not_my_range_nxt_range(q)
             self.finger_table.append(key_q)
@@ -188,23 +164,22 @@ class Node:
         kwargs = func_data.get('kwargs')
 
         """
+        
+        func_str = await websocket.recv()
+        func_data = jsonpickle.decode(func_str)
 
-        while True:
-            func_str = await websocket.recv()
-            func_data = json.loads(func_str)
+        func_name = func_data.get('func_name')
+        func = eval("self.%s" % func_name)
+        args = func_data.get('args')
+        kwargs = func_data.get('kwargs')
 
-            func_name = func_data.get('func_name')
-            func = eval("self.%s" % func_name)
-            args = func_data.get('args')
-            kwargs = func_data.get('kwargs')
-            
-            _return = await func(*args, **kwargs)
+        _return = await func(*args, **kwargs)
 
-            print("[NODE %d] executed %s with args %s and kwargs %s" % (
-                self.ai.id, func_name, json.dumps(args), json.dumps(kwargs)))
+        print("[NODE %d] executed %s with args %s and kwargs %s" % (
+            self.ai.id, func_name, str(args), str(kwargs)))
 
-            await websocket.send(jsonpickle.encode(_return))
-            return jsonpickle.encode(_return)
+        await websocket.send(jsonpickle.encode(_return))
+        return jsonpickle.encode(_return)
     
     @staticmethod
     async def hello(name):
@@ -216,6 +191,7 @@ class Node:
         """Used for testing async function calls"""
         a = random.randint(1,32)
         return "Async Hello %s" % name
+
 
     def start(self):
         """
@@ -231,16 +207,18 @@ class Node:
         _run = asyncio.get_event_loop().run_until_complete
         
         if self.cai:
-            # connect to the ring
-            ws = _run(websockets.connect(self.cai.get_uri()))
-            _data = {
-                'func_name': 'locate_for_insert',
-                'args': (),
-                'kwargs': {}
-            }
+            # # connect to the ring
+            q, new_id = _run(self.cai.execute("locate_for_insert"))
 
-            _run(ws.send(json.dumps(_data)))
+            # # update the id
+            self.ai.id = new_id
 
+            # place the new node in the middle of q and q.nxt
+            _q_nxt = _run(q.execute("get_nxt"))
+            self.nxt = _q_nxt
+            _run(_q_nxt.execute('set_prv', prv=self.ai))
+            _run(q.execute('set_nxt', nxt=self.ai))
+            
         else:
             pass
 

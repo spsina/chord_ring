@@ -15,40 +15,18 @@ async def test_run_function(_ai):
     """
     # sync function test
     print("[TEST] -----------> Testing Sync Function Call")
-    async with websockets.connect(_ai.get_uri()) as ws:
-        _data = {
-            'func_name': 'hello',
-            'args': (),
-            'kwargs': {"name": "sina"}
-        }
+    
+    result = await _ai.execute("hello", name="sina")
+    assert result == "Hello sina"
 
-        print("[TEST] Sending Data")
-        await ws.send(json.dumps(_data))
-        print("[TEST] Waiting for Data")
-        _result = await ws.recv()
-        result = jsonpickle.decode(_result)
-
-        print("[TEST] result: ", result)
-        assert result == "Hello sina"
     print("[TEST] ############ Testing Sync Function Call --- end")
 
     # async function test
     print("[TEST] -----------> Testing Async Function Call")
-    async with websockets.connect(_ai.get_uri()) as ws:
-        _data = {
-            'func_name': 'a_hello',
-            'args': (),
-            'kwargs': {"name": "sina"}
-        }
+    
+    result = await _ai.execute('a_hello', name="sina")
+    assert result == "Async Hello sina"
 
-        print("[TEST] Sending Data")
-        await ws.send(json.dumps(_data))
-        print("[TEST] Waiting for Data")
-        _result = await ws.recv()
-        result = jsonpickle.decode(_result)
-
-        print("[TEST] result: ", result)
-        assert result == "Async Hello sina"
     print("[TEST] ############ Testing Async Function Call")
 
 
@@ -60,39 +38,13 @@ async def test_finger_table(_ai):
     """
     # sync function test
     print("[TEST] -----------> Update Finger Table")
-    async with websockets.connect(_ai.get_uri()) as ws:
-        _data = {
-            'func_name': 'update_finger_table',
-            'args': (),
-            'kwargs': {}
-        }
-
-        print("[TEST] Sending Data")
-        await ws.send(json.dumps(_data))
-        print("[TEST] Waiting for Data")
-        _result = await ws.recv()
-        result = jsonpickle.decode(_result)
-
-        print("[TEST] result: ", result)
-        assert result == None
+    result = await _ai.execute('update_finger_table')
+    assert result == None
     print("[TEST] ############ Update Finger Table")
 
     print("[TEST] -----------> Get Finger Table")
-    async with websockets.connect(_ai.get_uri()) as ws:
-        _data = {
-            'func_name': 'get_finger_table',
-            'args': (),
-            'kwargs': {}
-        }
-
-        print("[TEST] Sending Data")
-        await ws.send(json.dumps(_data))
-        print("[TEST] Waiting for Data")
-        _result = await ws.recv()
-        result = jsonpickle.decode(_result)
-
-        print("[TEST] result: ", result)
-        assert result == [_ai for i in range(5)]
+    result = await _ai.execute('get_finger_table')
+    assert result == [_ai for i in range(5)]
     print("[TEST] ############ Get Finger Table")
 
 
@@ -104,21 +56,8 @@ async def test_locate_for_insert(_ai):
     """
     # sync function test
     print("[TEST] -----------> Locate For Insert")
-    async with websockets.connect(_ai.get_uri()) as ws:
-        _data = {
-            'func_name': 'locate_for_insert',
-            'args': (),
-            'kwargs': {}
-        }
-
-        print("[TEST] Sending Data")
-        await ws.send(json.dumps(_data))
-        print("[TEST] Waiting for Data")
-        _result = await ws.recv()
-        result = jsonpickle.decode(_result)
-
-        print("[TEST] result: ", result)
-        
+    result = await _ai.execute('locate_for_insert')
+    print(result)    
     print("[TEST] ############ Locate For Insert")
 
 

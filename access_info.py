@@ -1,5 +1,6 @@
 import json
 import jsonpickle
+import websockets
 
 class AccessInfo:
 
@@ -10,6 +11,22 @@ class AccessInfo:
 
     def get_uri(self):
         return "ws://%s:%d" % (self.address, self.port)
+
+
+    async def execute(self, func_name, *args, **kwargs):
+        async with websockets.connect(self.get_uri()) as ws:
+            _data = {
+                'func_name': func_name,
+                'args': args,
+                'kwargs': kwargs
+            }
+
+            await ws.send(jsonpickle.encode(_data))
+            _result = await ws.recv()
+            result = jsonpickle.decode(_result)
+            
+            return result
+
 
     def __repr__(self) -> str:
         return json.dumps({
