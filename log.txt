@@ -1,0 +1,194 @@
+[NODE 25] running node on localhost:1212
+[NODE 25] waiting for commands
+[NODE 25] Updating finger table
+[NODE 25] looking for 26
+[NODE 25] my range [0, 31]
+[NODE 25] prv: 25 | nxt: 25
+[NODE 25] looking for 27
+[NODE 25] my range [0, 31]
+[NODE 25] prv: 25 | nxt: 25
+[NODE 25] looking for 29
+[NODE 25] my range [0, 31]
+[NODE 25] prv: 25 | nxt: 25
+[NODE 25] looking for 1
+[NODE 25] my range [0, 31]
+[NODE 25] prv: 25 | nxt: 25
+[NODE 25] looking for 9
+[NODE 25] my range [0, 31]
+[NODE 25] prv: 25 | nxt: 25
+[NODE 25] executed locate_for_insert with args () and kwargs {}
+[NODE 25] executed get_nxt with args () and kwargs {}
+[NODE 25] executed set_prv with args () and kwargs {'prv': {"address": "localhost", "port": 4545, "id": 18}}
+[NODE 25] executed set_nxt with args () and kwargs {'nxt': {"address": "localhost", "port": 4545, "id": 18}}
+[NODE 18] running node on localhost:4545
+[NODE 18] waiting for commands
+[NODE 18] Updating finger table
+[NODE 18] looking for 19
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 25] looking for 19
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 19}
+[NODE 18] looking for 20
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 25] looking for 20
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 20}
+[NODE 18] looking for 22
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 25] looking for 22
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 22}
+[NODE 18] looking for 26
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 18] looking for 2
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 25] Updating finger table
+[NODE 25] looking for 26
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 18] looking for 26
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 26}
+[NODE 25] looking for 27
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 18] looking for 27
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 27}
+[NODE 25] looking for 29
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 18] looking for 29
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 29}
+[NODE 25] looking for 1
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 18] looking for 1
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 1}
+[NODE 25] looking for 9
+[NODE 25] my range [19, 25]
+[NODE 25] prv: 18 | nxt: 18
+[NODE 18] looking for 9
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 25
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 9}
+[NODE 25] executed update_finger_table_and_notify with args () and kwargs {'start_node_id': 18}
+[NODE 18] executed locate with args () and kwargs {'key': 1}
+[NODE 25] executed locate_for_insert with args () and kwargs {}
+[NODE 18] executed get_nxt with args () and kwargs {}
+[NODE 25] executed set_prv with args () and kwargs {'prv': {"address": "localhost", "port": 6565, "id": 1}}
+[NODE 18] executed set_nxt with args () and kwargs {'nxt': {"address": "localhost", "port": 6565, "id": 1}}
+[NODE 1] running node on localhost:6565
+[NODE 1] waiting for commands
+[NODE 1] Updating finger table
+[NODE 1] looking for 2
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 25] looking for 2
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 2}
+[NODE 1] looking for 3
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 25] looking for 3
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 3}
+[NODE 1] looking for 5
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 25] looking for 5
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 5}
+[NODE 1] looking for 9
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 25] looking for 9
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 9}
+[NODE 1] looking for 17
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 25] looking for 17
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 25] executed if_not_my_range_nxt_range with args () and kwargs {'q': 17}
+[NODE 25] Updating finger table
+[NODE 25] looking for 26
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 18] looking for 26
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 26}
+[NODE 25] looking for 27
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 18] looking for 27
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 27}
+[NODE 25] looking for 29
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 18] looking for 29
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 29}
+[NODE 25] looking for 1
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 18] looking for 1
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 18] executed if_not_my_range_nxt_range with args () and kwargs {'q': 1}
+[NODE 25] looking for 9
+[NODE 25] my range [2, 25]
+[NODE 25] prv: 1 | nxt: 18
+[NODE 18] Updating finger table
+[NODE 18] looking for 19
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 1] looking for 19
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 1] executed if_not_my_range_nxt_range with args () and kwargs {'q': 19}
+[NODE 18] looking for 20
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 1] looking for 20
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 1] executed if_not_my_range_nxt_range with args () and kwargs {'q': 20}
+[NODE 18] looking for 22
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 1] looking for 22
+[NODE 1] my range [19, 0]
+[NODE 1] prv: 18 | nxt: 25
+[NODE 1] executed if_not_my_range_nxt_range with args () and kwargs {'q': 22}
+[NODE 18] looking for 26
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 18] looking for 2
+[NODE 18] my range [26, 17]
+[NODE 18] prv: 25 | nxt: 1
+[NODE 18] executed update_finger_table_and_notify with args () and kwargs {'start_node_id': 1}
+[NODE 25] executed update_finger_table_and_notify with args () and kwargs {'start_node_id': 1}
