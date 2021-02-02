@@ -1,0 +1,6 @@
+importlib-metadata==3.4.0
+jsonpickle==1.5.1
+pep8==1.7.1
+typing-extensions==3.7.4.3
+websockets==8.1
+zipp==3.4.0

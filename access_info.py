@@ -1,3 +1,6 @@
+import json
+import jsonpickle
+
 class AccessInfo:
 
     def __init__(self, address, port, id):
