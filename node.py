@@ -147,7 +147,10 @@ class Node:
         self.finger_table = []
 
         for i in range(5):
-            q = self.ai.id + 2 ** i % self._MAX
+            q = (self.ai.id + 2 ** i) % self._MAX
+
+            if q == 0:
+                q = 1
 
             key_q = await self.if_not_my_range_nxt_range(q)
             self.finger_table.append(key_q)
@@ -272,6 +275,7 @@ class Node:
             result = jsonpickle.decode(_result)
 
             print("[TEST] result: ", result)
+            assert result == [_ai for i in range(5)]
         print("[TEST] ############ Get Finger Table")
 
     def test(self):

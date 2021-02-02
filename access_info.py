@@ -17,3 +17,6 @@ class AccessInfo:
             'port': self.port,
             'id': self.id
         })
+
+    def __eq__(self, other):
+        return self.id == other.id
