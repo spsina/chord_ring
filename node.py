@@ -217,130 +217,6 @@ class Node:
         a = random.randint(1,32)
         return "Async Hello %s" % name
 
-    @staticmethod
-    async def test_run_function(_ai):
-        """
-        tests the functionality of run function a given ai node
-        :param _ai: remove chord ai
-        :return: None
-        """
-        # sync function test
-        print("[TEST] -----------> Testing Sync Function Call")
-        async with websockets.connect(_ai.get_uri()) as ws:
-            _data = {
-                'func_name': 'hello',
-                'args': (),
-                'kwargs': {"name": "sina"}
-            }
-
-            print("[TEST] Sending Data")
-            await ws.send(json.dumps(_data))
-            print("[TEST] Waiting for Data")
-            _result = await ws.recv()
-            result = jsonpickle.decode(_result)
-
-            print("[TEST] result: ", result)
-            assert result == "Hello sina"
-        print("[TEST] ############ Testing Sync Function Call --- end")
-
-        # async function test
-        print("[TEST] -----------> Testing Async Function Call")
-        async with websockets.connect(_ai.get_uri()) as ws:
-            _data = {
-                'func_name': 'a_hello',
-                'args': (),
-                'kwargs': {"name": "sina"}
-            }
-
-            print("[TEST] Sending Data")
-            await ws.send(json.dumps(_data))
-            print("[TEST] Waiting for Data")
-            _result = await ws.recv()
-            result = jsonpickle.decode(_result)
-
-            print("[TEST] result: ", result)
-            assert result == "Async Hello sina"
-        print("[TEST] ############ Testing Async Function Call")
-
-    @staticmethod
-    async def test_finger_table(_ai):
-        """
-        test finger table creation
-        :param _ai: remove chord ai
-        :return: None
-        """
-        # sync function test
-        print("[TEST] -----------> Update Finger Table")
-        async with websockets.connect(_ai.get_uri()) as ws:
-            _data = {
-                'func_name': 'update_finger_table',
-                'args': (),
-                'kwargs': {}
-            }
-
-            print("[TEST] Sending Data")
-            await ws.send(json.dumps(_data))
-            print("[TEST] Waiting for Data")
-            _result = await ws.recv()
-            result = jsonpickle.decode(_result)
-
-            print("[TEST] result: ", result)
-            assert result == None
-        print("[TEST] ############ Update Finger Table")
-
-        print("[TEST] -----------> Get Finger Table")
-        async with websockets.connect(_ai.get_uri()) as ws:
-            _data = {
-                'func_name': 'get_finger_table',
-                'args': (),
-                'kwargs': {}
-            }
-
-            print("[TEST] Sending Data")
-            await ws.send(json.dumps(_data))
-            print("[TEST] Waiting for Data")
-            _result = await ws.recv()
-            result = jsonpickle.decode(_result)
-
-            print("[TEST] result: ", result)
-            assert result == [_ai for i in range(5)]
-        print("[TEST] ############ Get Finger Table")
-
-    @staticmethod
-    async def test_locate_for_insert(_ai):
-        """
-        test finger table creation
-        :param _ai: remove chord ai
-        :return: None
-        """
-        # sync function test
-        print("[TEST] -----------> Locate For Insert")
-        async with websockets.connect(_ai.get_uri()) as ws:
-            _data = {
-                'func_name': 'locate_for_insert',
-                'args': (),
-                'kwargs': {}
-            }
-
-            print("[TEST] Sending Data")
-            await ws.send(json.dumps(_data))
-            print("[TEST] Waiting for Data")
-            _result = await ws.recv()
-            result = jsonpickle.decode(_result)
-
-            print("[TEST] result: ", result)
-            
-        print("[TEST] ############ Locate For Insert")
-
-    def test(self):
-
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        asyncio.get_event_loop().run_until_complete(self.test_run_function(self.ai))
-        asyncio.get_event_loop().run_until_complete(self.test_finger_table(self.ai))
-        asyncio.get_event_loop().run_until_complete(self.test_locate_for_insert(self.ai))
-
     def start(self):
         """
         if chord access info is set, it means this node
@@ -348,26 +224,30 @@ class Node:
 
         otherwise, this node is the genesis node in a ring
         """
-
-        if self.cai:
-            pass
-        else:
-            pass
-
         # this process may be run from a thread
         # get a new event loop
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        _run = asyncio.get_event_loop().run_until_complete
+        
+        if self.cai:
+            # connect to the ring
+            ws = _run(websockets.connect(self.cai.get_uri()))
+            _data = {
+                'func_name': 'locate_for_insert',
+                'args': (),
+                'kwargs': {}
+            }
+
+            _run(ws.send(json.dumps(_data)))
+
+        else:
+            pass
 
         start_server = websockets.serve(self.run, self.ai.address, self.ai.port)
         asyncio.get_event_loop().run_until_complete(start_server)
 
         print("[NODE : %d] running node on %s:%d" % (self.ai.id, self.ai.address, self.ai.port))
-        print("[NODE : %d] running self test")
-
-        _test = Thread(target=self.test)
-        _test.start()
-
         print("[NODE %d] waiting for commands" % self.ai.id)
 
         asyncio.get_event_loop().run_forever()
@@ -382,4 +262,9 @@ if __name__ == "__main__":
     _ai = AccessInfo("localhost", 9090, random.randint(1, 32))
     _t = Thread(target=node_manager, args=(_ai,))
     _t.start()
+    time.sleep(1)
+    import tests
+
+    tests.test(_ai)
+
     _t.join()
