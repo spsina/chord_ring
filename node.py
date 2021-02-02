@@ -19,19 +19,19 @@ class Node:
         self.cai = chord_access_info  # a chord node that this node will be joind to
         self.ai = ai  # self access info
 
-    def set_nxt(self, nxt):
+    async def set_nxt(self, nxt):
         self.nxt = nxt
 
-    def set_prv(self, prv):
+    async def set_prv(self, prv):
         self.prv = prv
 
-    def get_nxt(self):
+    async def get_nxt(self):
         return self.nxt
 
-    def get_prv(self):
+    async def get_prv(self):
         return self.prv
 
-    def get_range(self):
+    async def get_range(self):
         """
         :return: a range of keys, that might be saved on this node
         """
@@ -80,9 +80,9 @@ class Node:
         """
         Find what node the given key is located in
         """
-
+        
         # check if key is on the current node
-        if key in self.get_range():
+        if key in await self.get_range():
             return self.ai
 
         """
@@ -99,17 +99,38 @@ class Node:
         _chord_id = - 1
         _chord = None
 
+        # no range found for the given key in finger table
+        # so find and  use the chord with the larges supported key
         for ft in self.finger_table:
             if ft.id > _chord_id:
                 _chord = ft
 
         if not _chord:
-            raise Exception("yja ridim")
+            raise Exception("Logic Error In Chord Find")
 
         return await self.remote_locate(_chord, key)
 
+    async def locate_for_insert(self):
+        """
+        Generate a new id for new node
+        find the node that is the proper predesessor of the newly generated id
+        """
+                
+        # do {
+        new_node_id = random.randint(1, 32)
+        q = await self.locate(new_node_id)
+        # }
+
+        while new_node_id == q.id:
+            new_node_id = random.randint(1, 32)
+            q = await self.locate(new_node_id)
+        
+        
+        return q, new_node_id
+    
     async def if_not_my_range_nxt_range(self, q):
-        if q in self.get_range():
+        
+        if q in await self.get_range():
             key_q = self.ai
         else:
             async with websockets.connect(self.nxt.get_uri()) as ws:
@@ -155,7 +176,7 @@ class Node:
             key_q = await self.if_not_my_range_nxt_range(q)
             self.finger_table.append(key_q)
 
-    def get_finger_table(self):
+    async def get_finger_table(self):
         return self.finger_table
 
     async def run(self, websocket, path):
@@ -176,18 +197,25 @@ class Node:
             func = eval("self.%s" % func_name)
             args = func_data.get('args')
             kwargs = func_data.get('kwargs')
-
-            try:
-                # the given function is an async, we need to await it
-                _return = await func(*args, **kwargs)
-            except TypeError:
-                _return = func(*args, **kwargs)
+            
+            _return = await func(*args, **kwargs)
 
             print("[NODE %d] executed %s with args %s and kwargs %s" % (
                 self.ai.id, func_name, json.dumps(args), json.dumps(kwargs)))
 
             await websocket.send(jsonpickle.encode(_return))
             return jsonpickle.encode(_return)
+    
+    @staticmethod
+    async def hello(name):
+        """Used for testing sync function calls"""
+        return "Hello %s" % name
+
+    @staticmethod
+    async def a_hello(name):
+        """Used for testing async function calls"""
+        a = random.randint(1,32)
+        return "Async Hello %s" % name
 
     @staticmethod
     async def test_run_function(_ai):
@@ -278,27 +306,40 @@ class Node:
             assert result == [_ai for i in range(5)]
         print("[TEST] ############ Get Finger Table")
 
+    @staticmethod
+    async def test_locate_for_insert(_ai):
+        """
+        test finger table creation
+        :param _ai: remove chord ai
+        :return: None
+        """
+        # sync function test
+        print("[TEST] -----------> Locate For Insert")
+        async with websockets.connect(_ai.get_uri()) as ws:
+            _data = {
+                'func_name': 'locate_for_insert',
+                'args': (),
+                'kwargs': {}
+            }
+
+            print("[TEST] Sending Data")
+            await ws.send(json.dumps(_data))
+            print("[TEST] Waiting for Data")
+            _result = await ws.recv()
+            result = jsonpickle.decode(_result)
+
+            print("[TEST] result: ", result)
+            
+        print("[TEST] ############ Locate For Insert")
+
     def test(self):
-        # this process may be run from a thread
-        # get a new event loop
+
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
-        print("[TEST] ==================>")
-        # run function test
         asyncio.get_event_loop().run_until_complete(self.test_run_function(self.ai))
         asyncio.get_event_loop().run_until_complete(self.test_finger_table(self.ai))
-        print("[TEST] ===================")
-
-    @staticmethod
-    def hello(name):
-        """Used for testing sync function calls"""
-        return "Hello %s" % name
-
-    @staticmethod
-    async def a_hello(name):
-        """Used for testing async function calls"""
-        return "Async Hello %s" % name
+        asyncio.get_event_loop().run_until_complete(self.test_locate_for_insert(self.ai))
 
     def start(self):
         """
