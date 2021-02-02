@@ -1,7 +1,4 @@
-import websockets
 import asyncio
-import jsonpickle
-import json
 from access_info import AccessInfo
 from threading import Thread
 from node import Node
@@ -57,7 +54,6 @@ async def test_locate_for_insert(_ai):
     # sync function test
     print("[TEST] -----------> Locate For Insert")
     result = await _ai.execute('locate_for_insert')
-    print(result)    
     print("[TEST] ############ Locate For Insert")
 
 

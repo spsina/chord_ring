@@ -1,11 +1,9 @@
 import asyncio
-
 import websockets
 import jsonpickle
 from access_info import AccessInfo
 import random
 from threading import Thread
-import json
 import time
 
 
@@ -42,7 +40,7 @@ class Node:
             _start = self.prv.id + 1
             _end = self.ai.id + 1
         elif self.ai.id < self.prv.id:
-            _start = self.prv + 1
+            _start = self.prv.id + 1
             _end = self._MAX + 1
         else:
             _start = 1
@@ -197,7 +195,6 @@ class Node:
         """
         if chord access info is set, it means this node
         is trying to connect to a ring
-
         otherwise, this node is the genesis node in a ring
         """
         # this process may be run from a thread
@@ -220,7 +217,7 @@ class Node:
             _run(q.execute('set_nxt', nxt=self.ai))
             
         else:
-            pass
+            self.ai.id = random.randint(1,32)
 
         start_server = websockets.serve(self.run, self.ai.address, self.ai.port)
         asyncio.get_event_loop().run_until_complete(start_server)
@@ -229,20 +226,3 @@ class Node:
         print("[NODE %d] waiting for commands" % self.ai.id)
 
         asyncio.get_event_loop().run_forever()
-
-
-def node_manager(_ai):
-    _node = Node(_ai, None)
-    _node.start()
-
-
-if __name__ == "__main__":
-    _ai = AccessInfo("localhost", 9090, random.randint(1, 32))
-    _t = Thread(target=node_manager, args=(_ai,))
-    _t.start()
-    time.sleep(1)
-    import tests
-
-    tests.test(_ai)
-
-    _t.join()
