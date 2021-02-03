@@ -103,14 +103,18 @@ class Node:
 
         return await self.remote_locate(_chord, key)
 
-    async def locate_for_insert(self):
+    async def locate_for_insert(self, hint_id=random.randint(0, 31)):
         """
         Generate a new id for new node
         find the node that is the proper predesessor of the newly generated id
         """
-                
+
+        # tries to use this id if availible
+        if hint_id is None:
+            hint_id = random.randint(0, 31)
+        
         # do {
-        new_node_id = random.randint(0, self._MAX - 1)
+        new_node_id = hint_id
         q = await self.locate(new_node_id)
         # }
 
@@ -127,9 +131,6 @@ class Node:
         q = q % self._MAX
 
         _range = await self.get_range()
-        print("[NODE %d] looking for %d" % (self.ai.id, q))
-        print("[NODE %d] my range [%d, %d]" % (self.ai.id, _range[0], _range[-1]))
-        print("[NODE %d] prv: %d | nxt: %d" % (self.ai.id, self.prv.id, self.nxt.id))
 
         if q in _range:
             return self.ai
@@ -220,7 +221,7 @@ class Node:
         
         if self.cai:
             # # connect to the ring
-            qn, new_id = _run(self.cai.execute("locate_for_insert"))
+            qn, new_id = _run(self.cai.execute("locate_for_insert", hint_id=self.ai.id))
             
             q = _run(qn.execute('get_prv'))
 
@@ -235,7 +236,8 @@ class Node:
             _run(q.execute('set_nxt', nxt=self.ai))
             
         else:
-            self.ai.id = random.randint(0,self._MAX)
+            if self.ai.id is None:
+                self.ai.id = random.randint(0,self._MAX)
 
         start_server = websockets.serve(self.run, self.ai.address, self.ai.port)
         asyncio.get_event_loop().run_until_complete(start_server)
