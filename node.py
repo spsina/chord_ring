@@ -5,6 +5,7 @@ from access_info import AccessInfo
 import random
 from threading import Thread
 
+
 class Node:
     _MAX = 32  # max numbers of nodes in the ring
 
@@ -14,6 +15,7 @@ class Node:
         self.prv = ai  # previous node access info (address, port, id)
         self.cai = chord_access_info  # a chord node that this node will be joind to
         self.ai = ai  # self access info
+        self.keep_alive = True  # keeps the node running
 
     async def set_nxt(self, nxt):
         self.nxt = nxt
@@ -34,7 +36,7 @@ class Node:
 
         # range is (prvId, currentId]
         # or (prvId, _MAX] if currentID < prvId
-        
+
         if self.ai.id > self.prv.id:
             _start = self.prv.id + 1
             _end = self.ai.id + 1
@@ -53,7 +55,7 @@ class Node:
         else:
             _start = 0
             _end = self._MAX
-        
+
         return range(_start, _end)
 
     @staticmethod
@@ -66,7 +68,7 @@ class Node:
         return await _chord.execute("locate", key=key)
 
     async def locate(self, key):
-        
+
         """
         Find what node the given key is located in
         """
@@ -101,6 +103,11 @@ class Node:
         if not _chord:
             raise Exception("Logic Error In Chord Find")
 
+        # this is an end node in the ring
+        # ask the next chord for the key
+        if _chord_id == self.ai.id:
+            return await self.remote_locate(self.nxt, key)
+
         return await self.remote_locate(_chord, key)
 
     async def locate_for_insert(self, hint_id=random.randint(0, 31)):
@@ -112,7 +119,7 @@ class Node:
         # tries to use this id if availible
         if hint_id is None:
             hint_id = random.randint(0, 31)
-        
+
         # do {
         new_node_id = hint_id
         q = await self.locate(new_node_id)
@@ -121,12 +128,11 @@ class Node:
         while new_node_id == q.id:
             new_node_id = random.randint(0, self._MAX - 1)
             q = await self.locate(new_node_id)
-        
-        
+
         return q, new_node_id
-    
+
     async def if_not_my_range_nxt_range(self, q):
-        
+
         # normalize q
         q = q % self._MAX
 
@@ -136,7 +142,7 @@ class Node:
             return self.ai
         else:
             return await self.nxt.execute('if_not_my_range_nxt_range', q=q)
-        
+
     async def update_finger_table(self):
         """
         FT:
@@ -161,6 +167,9 @@ class Node:
     async def get_finger_table(self):
         return self.finger_table
 
+    async def quit(self):
+        self.keep_alive = False
+
     async def run(self, websocket, path):
         """
         func_data = json.loads(func_str)
@@ -170,42 +179,29 @@ class Node:
         kwargs = func_data.get('kwargs')
 
         """
-        
-        while True:
-            func_str = await websocket.recv()
-            func_data = jsonpickle.decode(func_str)
 
-            func_name = func_data.get('func_name')
-            func = eval("self.%s" % func_name)
-            args = func_data.get('args')
-            kwargs = func_data.get('kwargs')
+        func_str = await websocket.recv()
+        func_data = jsonpickle.decode(func_str)
 
-            _return = await func(*args, **kwargs)
+        func_name = func_data.get('func_name')
+        func = eval("self.%s" % func_name)
+        args = func_data.get('args')
+        kwargs = func_data.get('kwargs')
 
-            print("[NODE %d] executed %s with args %s and kwargs %s" % (
-                self.ai.id, func_name, str(args), str(kwargs)))
+        _return = await func(*args, **kwargs)
 
-            await websocket.send(jsonpickle.encode(_return))
-            return jsonpickle.encode(_return)
-    
-    async def update_finger_table_and_notify(self, start_node_id):        
+        print("[NODE %d] executed %s with args %s and kwargs %s" % (
+            self.ai.id, func_name, str(args), str(kwargs)))
+
+        await websocket.send(jsonpickle.encode(_return))
+        return jsonpickle.encode(_return)
+
+    async def update_finger_table_and_notify(self, start_node_id):
         print("[NODE %d] Updating finger table" % self.ai.id)
         await self.update_finger_table()
-        
+
         if self.nxt.id != start_node_id:
             await self.nxt.execute("update_finger_table_and_notify", start_node_id=start_node_id)
-
-    @staticmethod
-    async def hello(name):
-        """Used for testing sync function calls"""
-        return "Hello %s" % name
-
-    @staticmethod
-    async def a_hello(name):
-        """Used for testing async function calls"""
-        a = random.randint(1,32)
-        return "Async Hello %s" % name
-
 
     def start(self):
         """
@@ -218,11 +214,11 @@ class Node:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         _run = asyncio.get_event_loop().run_until_complete
-        
+
         if self.cai:
             # # connect to the ring
             qn, new_id = _run(self.cai.execute("locate_for_insert", hint_id=self.ai.id))
-            
+
             q = _run(qn.execute('get_prv'))
 
             # # update the id
@@ -234,10 +230,10 @@ class Node:
             self.prv = q
             _run(_q_nxt.execute('set_prv', prv=self.ai))
             _run(q.execute('set_nxt', nxt=self.ai))
-            
+
         else:
             if self.ai.id is None:
-                self.ai.id = random.randint(0,self._MAX)
+                self.ai.id = random.randint(0, self._MAX)
 
         start_server = websockets.serve(self.run, self.ai.address, self.ai.port)
         asyncio.get_event_loop().run_until_complete(start_server)
