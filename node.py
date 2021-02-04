@@ -11,7 +11,7 @@ class Node:
         self.finger_table = []  # finger table
         self.nxt = ai  # next node access info (address, port, id)
         self.prv = ai  # previous node access info (address, port, id)
-        self.cai = chord_access_info  # a chord node that this node will be joind to
+        self.cai = chord_access_info  # a chord node that this node will be joined to
         self.ai = ai  # self access info
         self.keep_alive = True  # keeps the node running
 
