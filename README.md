@@ -75,11 +75,11 @@ the second part of network_test.py will assert the correctness of finger tables 
 ##### Storage location (node) of a given key
 
 key to locate | node id that initiates the key location | location of the key
---------------|-----------------------------------------|--------------------|
-    3         |                 1                       | 4
-    13        |                 20                      |   13
-    26        |                 4                       | 1
-    39        |                 13                      |   13
+--------------|-----------------------------------------|--------------------
+3             |1                                        |4
+13            |20                                       |13
+26            |4                                        |1
+39            |13                                       |13
 
 
 
