@@ -7,6 +7,7 @@ loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 _run = asyncio.get_event_loop().run_until_complete
 
+
 def node_starter(node):
     node.start()
 
@@ -14,11 +15,11 @@ def node_starter(node):
 def spaw_node():
     address = input("address(localhost): ")
     if not address:
-        address= "localhost"
+        address = "localhost"
     port = int(input("port: "))
     chord = None
     connect_to_ring = input("Connect to existing ring? (Y/N): ")
-    
+
     while connect_to_ring not in "YyNn":
         connect_to_ring = input("Connect to existing ring? (Y/N): ")
 
@@ -32,11 +33,10 @@ def spaw_node():
         chord_id = int(input("chord id: "))
         chord = AccessInfo(chord_address, chord_port, chord_id)
 
-    
     _ai = AccessInfo(address, port, None)
     _node = Node(ai=_ai, chord_access_info=chord)
 
-    _t = Thread(target=node_starter, args=(_node, ))
+    _t = Thread(target=node_starter, args=(_node,))
     _t.start()
 
     threads.append(_t)
@@ -45,7 +45,7 @@ def spaw_node():
 def add_node():
     address = input("address(localhost): ")
     if not address:
-        address= "localhost"
+        address = "localhost"
     port = int(input("port: "))
     id = int(input("id: "))
 
@@ -57,6 +57,7 @@ def list_nodes():
     for i in nodes.keys():
         print("%d - %s:%d" % (nodes[i].id, nodes[i].address, nodes[i].port))
 
+
 def get_not_null_input(message):
     _i = input(message)
     while not _i:
@@ -64,18 +65,19 @@ def get_not_null_input(message):
 
     return _i
 
+
 def ex():
     node_id = int(get_not_null_input("Node Id: "))
 
     if node_id not in nodes.keys():
         print("ERROR - node with id %d does not exist" % node_id)
         return
-    
+
     _node = nodes[node_id]
 
     func_name = get_not_null_input("Func name: ")
     kwargs = {}
-    
+
     while True:
         kwargs_str = input("kwargs: ")
         if not kwargs_str:
@@ -95,9 +97,10 @@ def ex():
     try:
         result = _run(_node.execute(func_name, **kwargs))
         print("---> ", result)
-    
+
     except Exception as e:
         print(str(e))
+
 
 if __name__ == "__main__":
     commands = {
@@ -105,7 +108,7 @@ if __name__ == "__main__":
         'add node': add_node,
         'list nodes': list_nodes,
         'ex': ex,
-        'q': None 
+        'q': None
     }
 
     threads = []
@@ -113,13 +116,13 @@ if __name__ == "__main__":
 
     while True:
         command = input("<terminal> ")
-        
+
         if command == "q":
             break
 
         if not command:
             continue
-            
+
         func = commands.get(command, None)
 
         if not func:
@@ -127,6 +130,3 @@ if __name__ == "__main__":
             continue
 
         func()
-
-
-        

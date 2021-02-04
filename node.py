@@ -1,9 +1,7 @@
 import asyncio
 import websockets
 import jsonpickle
-from access_info import AccessInfo
 import random
-from threading import Thread
 
 
 class Node:
@@ -168,7 +166,18 @@ class Node:
         return self.finger_table
 
     async def quit(self):
-        self.keep_alive = False
+
+        """
+        Detach from the network
+        :return:
+        """
+
+        # detach
+        await self.prv.exexute('set_nxt', nxt=self.nxt)
+        await self.nxt.execute('set_prv', prv=self.prv)
+
+        # update finger tables
+        await self.nxt.execute('update_finger_table_and_notify', start_node_id=self.nxt.id)
 
     async def run(self, websocket, path):
         """

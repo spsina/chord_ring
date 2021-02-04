@@ -103,8 +103,4 @@ if __name__ == "__main__":
     assert_finger_table(n3a, [20, 20, 20, 1, 1])
     assert_finger_table(n4a, [1, 1, 1, 1, 4])
 
-    _run(n1a.execute("quit"))
-    _run(n2a.execute("quit"))
-    _run(n3a.execute("quit"))
-    _run(n4a.execute("quit"))
-
+    print("[NETWORK TEST] ALL TESTS PASSED")

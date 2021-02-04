@@ -1,3 +1,0 @@
-spawn node
-localhost
-1212
