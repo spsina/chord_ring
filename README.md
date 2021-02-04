@@ -83,7 +83,7 @@ key to locate | node id that initiates the key location | location of the key
 
 
 
-the third part of the network_test.py asserts the correctness of key location
+the third part of the network_test.py asserts the correctness of key locations
 
 # how run
 _*this project is created and tested with python 3.8.2*_
@@ -91,3 +91,10 @@ first, install the requirements by running the following command
 
 ```pip install -r requirements.text```
 
+```
+python network_test.py
+```
+
+if the last output of network_test.py is:
+"[NETWORK TEST] ALL TESTS PASSED"
+it means that the system is working correctly
