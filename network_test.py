@@ -64,6 +64,18 @@ def assert_finger_table(na, ft):
     assert _ft_ids == ft
 
 
+def assert_location(key_to_locate, node_to_ask, node_id):
+    """
+    assert the correctness of the key location
+    key_to_ask: the key we are trying to find location for
+    node_to_ask: this is the node that we ask for the key
+    node_id: the actual node id
+    """
+
+    _node_location = _run(node_to_ask.execute('locate', key=key_to_locate))
+    assert _node_location.id == node_id
+
+
 if __name__ == "__main__":
     threads = []
 
@@ -102,5 +114,10 @@ if __name__ == "__main__":
     assert_finger_table(n2a, [13, 13, 13, 13, 20])
     assert_finger_table(n3a, [20, 20, 20, 1, 1])
     assert_finger_table(n4a, [1, 1, 1, 1, 4])
+
+    assert_location(3, n1a, 4)
+    assert_location(13, n4a, 13)
+    assert_location(26, n2a, 1)
+    assert_location(39, n3a, 13)
 
     print("[NETWORK TEST] ALL TESTS PASSED")

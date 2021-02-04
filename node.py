@@ -74,6 +74,11 @@ class Node:
         # normalize key
         key = key % self._MAX
 
+        # if key == 3:
+        #     print("[NODE %d] " % self.ai.id, "Looking for ", key)
+        #     raise Exception()
+        print("[NODE %d] " % self.ai.id, "Looking for ", key)
+
         # check if key is on the current node
         if key in await self.get_range():
             return self.ai
@@ -85,28 +90,25 @@ class Node:
             ft.id
         """
 
-        for i in range(len(self.finger_table) - 1):
-            if self.finger_table[i].id <= key <= self.finger_table[i + 1].id:
-                return await self.remote_locate(self.finger_table[i], key)
-
-        _chord_id = - 1
-        _chord = None
-
-        # no range found for the given key in finger table
-        # so find and  use the chord with the larges supported key
         for ft in self.finger_table:
-            if ft.id > _chord_id:
-                _chord = ft
+            if key in await ft.execute('get_range'):
+                return ft
 
-        if not _chord:
-            raise Exception("Logic Error In Chord Find")
+        for i in range(len(self.finger_table) - 1):
+            if self.ai.id == 1:
+                print(self.finger_table[i].id <= key <= self.finger_table[i + 1].id)
+            if self.finger_table[i].id <= key <= self.finger_table[i + 1].id:
+                print("[NODE %d] " % self.ai.id, "here found range ", self.finger_table[i])
+                return await self.finger_table[i].execute('locate', key=key)
+
+        _chord = max(self.finger_table, key=lambda x: x.id)
 
         # this is an end node in the ring
         # ask the next chord for the key
-        if _chord_id == self.ai.id:
+        if _chord.id == self.ai.id:
             return await self.remote_locate(self.nxt, key)
 
-        return await self.remote_locate(_chord, key)
+        return await _chord.execute('locate', key=key)
 
     async def locate_for_insert(self, hint_id=random.randint(0, 31)):
         """
