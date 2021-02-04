@@ -27,7 +27,7 @@ def spawn_node(node):
     t1 = Thread(target=node_runner, args=(node,))
     t1.start()
     # threads.append(t1)
-    time.sleep(0.2)
+    time.sleep(1)
 
 
 def assert_nxt_and_prv(na, nxt_id, prv_id):
