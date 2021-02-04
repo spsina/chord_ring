@@ -3,6 +3,7 @@ from access_info import AccessInfo
 from node import Node
 from threading import Thread
 import time
+from colorama import Fore, Back, Style
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
@@ -76,6 +77,10 @@ def assert_location(key_to_locate, node_to_ask, node_id):
     assert _node_location.id == node_id
 
 
+def get_node_prv_nxt(node):
+    return node.id, _run(node.execute('get_prv')).id, _run(node.execute('get_nxt')).id
+
+
 if __name__ == "__main__":
     threads = []
 
@@ -109,15 +114,39 @@ if __name__ == "__main__":
     assert_nxt_and_prv(n3a, 20, 4)
     assert_nxt_and_prv(n4a, 1, 13)
 
+    # get prv and next node (used for report print)
+    n1_prv_nxt = get_node_prv_nxt(n1a)
+    n2_prv_nxt = get_node_prv_nxt(n2a)
+    n3_prv_nxt = get_node_prv_nxt(n3a)
+    n4_prv_nxt = get_node_prv_nxt(n4a)
+
     # assert finger table correctness
     assert_finger_table(n1a, [4, 4, 13, 13, 20])
     assert_finger_table(n2a, [13, 13, 13, 13, 20])
     assert_finger_table(n3a, [20, 20, 20, 1, 1])
     assert_finger_table(n4a, [1, 1, 1, 1, 4])
 
+    # get finger table (used for report print)
+    n1_ft = n1a.id, str([_ft.id for _ft in _run(n1a.execute('get_finger_table'))])
+    n2_ft = n2a.id, str([_ft.id for _ft in _run(n1a.execute('get_finger_table'))])
+    n3_ft = n3a.id, str([_ft.id for _ft in _run(n1a.execute('get_finger_table'))])
+    n4_ft = n4a.id, str([_ft.id for _ft in _run(n1a.execute('get_finger_table'))])
+
     assert_location(3, n1a, 4)
     assert_location(13, n4a, 13)
     assert_location(26, n2a, 1)
     assert_location(39, n3a, 13)
 
-    print("[NETWORK TEST] ALL TESTS PASSED")
+    print(Fore.YELLOW, "[NETWORK TEST] RING PREV AND NEXT NODE REPORT: ", Fore.BLUE)
+    print(" [NETWORK TEST] node id %2d:\tprev_node_id: %2d\tnext_node_id:%2d" % n1_prv_nxt)
+    print(" [NETWORK TEST] node id %2d:\tprev_node_id: %2d\tnext_node_id:%2d" % n2_prv_nxt)
+    print(" [NETWORK TEST] node id %2d:\tprev_node_id: %2d\tnext_node_id:%2d" % n3_prv_nxt)
+    print(" [NETWORK TEST] node id %2d:\tprev_node_id: %2d\tnext_node_id:%2d" % n4_prv_nxt)
+
+    print(Fore.YELLOW, "[NETWORK TEST] RING FINGER TABLE REPORT: ", Fore.BLUE)
+    print(" [NETWORK TEST] node id %2d:\t%s" % n1_ft)
+    print(" [NETWORK TEST] node id %2d:\t%s" % n2_ft)
+    print(" [NETWORK TEST] node id %2d:\t%s" % n3_ft)
+    print(" [NETWORK TEST] node id %2d:\t%s" % n4_ft)
+
+    print(Fore.GREEN, "[NETWORK TEST] ALL TESTS PASSED")
